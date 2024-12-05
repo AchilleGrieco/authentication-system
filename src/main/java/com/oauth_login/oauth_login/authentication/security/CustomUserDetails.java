@@ -2,26 +2,22 @@ package com.oauth_login.oauth_login.authentication.security;
 
 import com.oauth_login.oauth_login.authentication.model.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
     private UserEntity userEntity;
 
-    //private Collection<GrantedAuthority> grantedAuthorities;
-
-    public CustomUserDetails(UserEntity userEntity/*, Collection<GrantedAuthority> grantedAuthorities*/) {
+    public CustomUserDetails(UserEntity userEntity) {
         this.userEntity = userEntity;
-        // this.grantedAuthorities = grantedAuthorities;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-        // return this.grantedAuthorities;
+        return Collections.emptyList();
     }
 
     public Long getUserId() {
@@ -44,21 +40,21 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return userEntity.isAccountNonExpired();
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return userEntity.isAccountNonLocked();
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return userEntity.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return userEntity.isEnabled();
     }
 }
