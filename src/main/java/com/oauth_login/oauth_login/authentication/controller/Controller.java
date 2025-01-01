@@ -8,7 +8,7 @@ public class Controller {
 
     @GetMapping("/secured")
     public String secured() {
-        return "Hello secured";
+        return "Secured";
     }
 
 }

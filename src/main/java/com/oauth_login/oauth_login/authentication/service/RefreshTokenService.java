@@ -1,6 +1,7 @@
 package com.oauth_login.oauth_login.authentication.service;
 
 import com.oauth_login.oauth_login.authentication.model.RefreshToken;
+import com.oauth_login.oauth_login.authentication.model.UserEntity;
 import com.oauth_login.oauth_login.authentication.repository.RefreshTokenRepository;
 import com.oauth_login.oauth_login.authentication.repository.UserRepository;
 import com.oauth_login.oauth_login.authentication.security.SecurityConstants;
@@ -21,15 +22,27 @@ public class RefreshTokenService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public RefreshToken createRefreshToken(Long userId) {
+        
+        UserEntity user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+            
+        // Force delete any existing tokens using native query
+        refreshTokenRepository.deleteByUserIdNative(userId);
+        
+        // Create new refresh token
         RefreshToken refreshToken = new RefreshToken();
-
-        refreshToken.setUser(userRepository.findById(userId).get());
+        refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(SecurityConstants.REFRESH_TOKEN_EXPIRATION));
         refreshToken.setToken(UUID.randomUUID().toString());
 
-        refreshToken = refreshTokenRepository.save(refreshToken);
-        return refreshToken;
+        try {
+            refreshToken = refreshTokenRepository.save(refreshToken);
+            return refreshToken;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public Optional<RefreshToken> findByToken(String token) {

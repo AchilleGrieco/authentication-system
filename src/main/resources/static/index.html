@@ -1,38 +1,113 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OAuth2 Login Test</title>
+    <title>OAuth2 Login</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
         .oauth-button {
             display: inline-block;
-            color: white;
             padding: 10px 20px;
+            color: white;
             text-decoration: none;
             border-radius: 5px;
             margin: 10px 0;
             font-family: Arial, sans-serif;
+            transition: background-color 0.3s;
+            cursor: pointer;
         }
-        .github {
-            background-color: #24292e;
+        .google {
+            background-color: #4285f4;
+        }
+        .google:hover {
+            background-color: #357abd;
+        }
+        #token-info {
+            margin-top: 20px;
+            word-break: break-all;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h2>Login Options</h2>
-    <div>
-        <a href="/oauth2/authorization/google" style="
-            display: inline-block;
-            background-color: #4285f4;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 10px 0;">
-            Login with Google
-        </a>
-        <a href="/oauth2/authorization/github" class="oauth-button github">
-            Login with GitHub
-        </a>
+    <div class="container">
+        <h2>Welcome</h2>
+        <div>
+            <button onclick="initiateGoogleLogin()" class="oauth-button google">
+                Login with Google
+            </button>
+        </div>
+        <div id="token-info">
+            <h3>Login Successful!</h3>
+            <p>Access Token: <span id="access-token"></span></p>
+            <p>Refresh Token: <span id="refresh-token"></span></p>
+        </div>
     </div>
+
+    <script>
+        function initiateGoogleLogin() {
+            // Open the OAuth2 endpoint in a popup
+            const width = 500;
+            const height = 600;
+            const left = (window.innerWidth - width) / 2;
+            const top = (window.innerHeight - height) / 2;
+            
+            const popup = window.open('/oauth2/authorization/google', 
+                'googleLogin', 
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+
+            // Handle the response
+            window.addEventListener('message', function(event) {
+                if (event.origin !== window.location.origin) return;
+                
+                if (event.data.type === 'oauth2-response') {
+                    const response = event.data.response;
+                    document.getElementById('access-token').textContent = response.accessToken;
+                    document.getElementById('refresh-token').textContent = response.refreshToken;
+                    document.getElementById('token-info').style.display = 'block';
+                    
+                    // Store tokens in localStorage
+                    localStorage.setItem('accessToken', response.accessToken);
+                    localStorage.setItem('refreshToken', response.refreshToken);
+                    
+                    if (popup) {
+                        popup.close();
+                    }
+                }
+            });
+        }
+
+        // Check if this window is the popup
+        if (window.opener) {
+            try {
+                // Try to parse the page content as JSON
+                const jsonResponse = JSON.parse(document.body.textContent);
+                
+                // Send the response back to the parent window
+                window.opener.postMessage({
+                    type: 'oauth2-response',
+                    response: jsonResponse
+                }, window.location.origin);
+            } catch (e) {
+                // If we can't parse JSON, this might not be the response page
+                console.log('Not a JSON response page');
+            }
+        }
+    </script>
 </body>
 </html>
