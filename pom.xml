@@ -8,11 +8,11 @@
 		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.oauth-login</groupId>
-	<artifactId>oauth-login</artifactId>
+	<groupId>com.authentication-system</groupId>
+	<artifactId>authentication-system</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>oauth-login</name>
-	<description>Oauth login for an application</description>
+	<name>authentication-system</name>
+	<description>Authentication System for an application</description>
 	<url/>
 	<licenses>
 		<license/>
