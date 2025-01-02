@@ -61,8 +61,8 @@ public class AuthController {
         this.verificationTokenCleanupService = verificationTokenCleanupService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody RegisterDto registerDto) {
 
         if (registerDto.getUsername() == null) {
             return new ResponseEntity<>("Username can't be null", HttpStatus.BAD_REQUEST);
@@ -124,7 +124,7 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully. Please check your email for verification.", HttpStatus.OK);
     }
 
-    @GetMapping("/verify")
+    @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
         
@@ -167,7 +167,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/refreshtoken")
+    @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
         String requestRefreshToken = request.getRefreshToken();
 
